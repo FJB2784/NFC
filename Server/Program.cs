@@ -24,7 +24,6 @@ namespace Server
                 {
                     // 接続待ち
                     System.Net.HttpListenerContext context = server.GetContext();
-                    Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}]\tAccess from {context.Request.RemoteEndPoint.Address}");
 
                     // 応答作成
                     System.Net.HttpListenerResponse response = context.Response;
@@ -35,6 +34,7 @@ namespace Server
                     byte[] idm = null;
                     try
                     {
+                        // NFC読み込み
                         Felica felica = new Felica();
                         felica.Polling((int)SystemCode.Common);
                         idm = felica.IDm();
