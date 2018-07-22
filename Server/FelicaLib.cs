@@ -38,15 +38,15 @@ using System.Runtime.InteropServices;
 
 namespace FelicaLib
 {
-    // ƒVƒXƒeƒ€ƒR[ƒh
+    // ã‚·ã‚¹ãƒ†ãƒ ã‚³ãƒ¼ãƒ‰
     enum SystemCode : int
     {
         Any = 0xffff,           // ANY
-        Common = 0xfe00,        // ‹¤’Ê—Ìˆæ
-        Cyberne = 0x0003,       // ƒTƒCƒoƒl—Ìˆæ
+        Common = 0xfe00,        // å…±é€šé ˜åŸŸ
+        Cyberne = 0x0003,       // ã‚µã‚¤ãƒãƒé ˜åŸŸ
 
-        Edy = 0xfe00,           // Edy (=‹¤’Ê—Ìˆæ)
-        Suica = 0x0003,         // Suica (=ƒTƒCƒoƒl—Ìˆæ)
+        Edy = 0xfe00,           // Edy (=å…±é€šé ˜åŸŸ)
+        Suica = 0x0003,         // Suica (=ã‚µã‚¤ãƒãƒé ˜åŸŸ)
     }
 
     public class Felica : IDisposable
@@ -76,11 +76,11 @@ namespace FelicaLib
             pasorip = pasori_open(null);
             if (pasorip == IntPtr.Zero)
             {
-                throw new Exception("felicalib.dll ‚ğŠJ‚¯‚Ü‚¹‚ñ");
+                throw new Exception("felicalib.dll ã‚’é–‹ã‘ã¾ã›ã‚“");
             }
             if (pasori_init(pasorip) != 0)
             {
-                throw new Exception("PaSoRi ‚ÉÚ‘±‚Å‚«‚Ü‚¹‚ñ");
+                throw new Exception("PaSoRi ã«æ¥ç¶šã§ãã¾ã›ã‚“");
             }
         }
 
@@ -105,7 +105,7 @@ namespace FelicaLib
             felicap = felica_polling(pasorip, (ushort)systemcode, 0, 0);
             if (felicap == IntPtr.Zero)
             {
-                throw new Exception("ƒJ[ƒh“Ç‚İæ‚è¸”s");
+                throw new Exception("ã‚«ãƒ¼ãƒ‰èª­ã¿å–ã‚Šå¤±æ•—");
             }
         }
 
