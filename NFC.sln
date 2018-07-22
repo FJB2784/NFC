@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFC", "NFC\NFC.csproj", "{E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{4118E381-4AFD-4923-82FE-62797932C16D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{BC1074A7-AC6B-44CB-ABCB-0E2F93D7FF17}"
+	ProjectSection(SolutionItems) = preProject
+		Client\nfc_client.js = Client\nfc_client.js
+		Client\test.html = Client\test.html
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
