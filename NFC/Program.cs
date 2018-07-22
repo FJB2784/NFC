@@ -13,13 +13,23 @@ namespace NFC
     {
         static void Main(string[] args)
         {
-            Felica felica = new Felica();
+            do
+            {
+                try
+                {
+                    Felica felica = new Felica();
 
-            felica.Polling((int)SystemCode.Any);
-            Console.WriteLine("IDm : " + BitConverter.ToString(felica.IDm()).Replace("-", ""));
-            Console.WriteLine("PMm : " + BitConverter.ToString(felica.PMm()).Replace("-", ""));
+                    felica.Polling((int)SystemCode.Any);
+                    Console.WriteLine("IDm : " + BitConverter.ToString(felica.IDm()).Replace("-", ""));
+                    Console.WriteLine("PMm : " + BitConverter.ToString(felica.PMm()).Replace("-", ""));
 
-            felica.Dispose();
+                    felica.Dispose();
+                }
+                catch
+                {
+                    Console.WriteLine("読み取り失敗");
+                }
+            } while (Console.ReadLine() == "");
         }
 
         private static void PrintSuicaNo(this FelicaLib.Felica f)
