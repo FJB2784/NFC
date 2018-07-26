@@ -19,11 +19,12 @@ namespace NFC
                 {
                     Felica felica = new Felica();
 
-                    felica.Polling((int)SystemCode.Suica);
+                    felica.Polling((int)SystemCode.Any);
                     Console.WriteLine("IDm : " + BitConverter.ToString(felica.IDm()).Replace("-", ""));
                     Console.WriteLine("PMm : " + BitConverter.ToString(felica.PMm()).Replace("-", ""));
                     Console.WriteLine();
                     //PrintSuicaInfo(felica);
+                    //Console.WriteLine();
                     PrintSuicaInfo(felica, SuicaServiceCode.History);
 
                     felica.Dispose();
@@ -40,8 +41,16 @@ namespace NFC
             History = 0x090f
         }
 
+        enum InOut : int
+        {
+            In = 0,
+            Out = 1
+        }
+
         private static void PrintSuicaInfo(this Felica felica, SuicaServiceCode code)
         {
+            felica.Polling((int)SystemCode.Suica);
+
             if (code == SuicaServiceCode.History)
             {
                 for (int i = 0; ; i++)
@@ -53,14 +62,14 @@ namespace NFC
                     Console.WriteLine("利用種別 : {0}", GetRiyouShubetsu(data[1]));
                     Console.WriteLine("支払種別 : {0}", GetShiharaiShubetsu(data[2]));
                     Console.WriteLine("入出場種別 : {0}", GetNyushutsujoShubetsu(data[3]));
-                    //Console.WriteLine("処理日付 : {0}", );
-                    BinaryToDate(new byte[] { data[4], data[5] });
-                    //Console.WriteLine(" : {0:X2}", data[0]);
-                    //Console.WriteLine("機器種別 : {0:X2}", data[0]);
-                    //Console.WriteLine("機器種別 : {0:X2}", data[0]);
-                    //Console.WriteLine("機器種別 : {0:X2}", data[0]);
-                    //Console.WriteLine("機器種別 : {0:X2}", data[0]);
-                    Console.WriteLine();
+                    Console.WriteLine("処理日付 : {0}", BinaryToDate(data[4], data[5]).ToString("yyyy/MM/dd"));
+                    Console.WriteLine("詳細情報 : {0:X2}{1:X2}{2:X2}{3:X2}", data[6], data[7], data[8], data[9]);
+                    Console.WriteLine("残額 : \\ {0}", BitConverter.ToUInt16(data, 10));
+                    Console.WriteLine("不明 : {0:X2}", data[12]);
+                    Console.WriteLine("取引通番 : {0}", BitConverter.ToUInt16(new byte[] { data[14], data[13] }, 0));
+                    Console.WriteLine("地域(入場) : {0}", GetChiikiCode(data[15], InOut.In));
+                    Console.WriteLine("地域(出場) : {0}", GetChiikiCode(data[15], InOut.Out));
+                    Console.WriteLine("不明 : {0:X2}", BinaryToInt32(ByteToBinary(data[15]), 7, 4));
                     Console.WriteLine();
                 }
             }
@@ -115,7 +124,7 @@ namespace NFC
                 case 0x36:
                     return "バス等車載機";
                 default:
-                    return "判別不能";
+                    return $"判別不能({data:x2})";
             }
         }
 
@@ -158,7 +167,7 @@ namespace NFC
                 case 0x4B:
                     return "入場・物販";
                 default:
-                    return "判別不能";
+                    return $"判別不能{data:x2}";
             }
         }
 
@@ -177,7 +186,7 @@ namespace NFC
                 case 0x3F:
                     return "モバイルSuica";
                 default:
-                    return "判別不能";
+                    return $"判別不能({data:x2})";
             }
         }
 
@@ -206,40 +215,62 @@ namespace NFC
                 case 0x21:
                     return "入場・出場(バス等・乗継割引)";
                 default:
-                    return "判別不能";
+                    return $"判別不能({data:x2})";
             }
         }
 
-        private static void BinaryToDate(byte[] data)
+        private static string GetChiikiCode(byte data, InOut io)
         {
-            if (data.Length != 2)
+            byte[] data_bit = ByteToBinary(data);
+            int code;
+            if (io == InOut.In)
             {
-                throw new Exception("dataの長さが2ではありません。");
+                code = BinaryToInt32(data_bit, 1, 2);
+            }
+            else
+            {
+                code = BinaryToInt32(data_bit, 3, 2);
             }
 
-            Console.WriteLine("{0}{1}", data[0], data[1]);
+            switch(code)
+            {
+                case 0:
+                    return "首都圏";
+                case 2:
+                    return "関西圏";
+                case 3:
+                    return "地方";
+                default:
+                    return $"不明({code:X2})";
+            }
+        }
 
+        private static DateTime BinaryToDate(byte data_0, byte data_1)
+        {
             // 2進数16桁を1ビットずつbyte配列に格納
             byte[] data_bit = new byte[16];
-            int temp = data[0];
-            for (int i = 0, j = data[0]; 0 < j / 2; i++, j /= 2)
+            for(int i = 7, temp = data_0; 0 <= i; i--, temp /= 2)
             {
-                data_bit[i] = (byte)(j % 2);
-
-                Console.Write(data_bit[i]);
+                data_bit[i] = (byte)(temp % 2);
             }
-            temp = data[1];
-            for (int i = 8, j = data[1]; 0 < j / 2; i++, j /= 2)
+            for(int i = 15, temp = data_1; 8 <= i; i--, temp /= 2)
             {
-                data_bit[i] = (byte)(j % 2);
-
-                Console.Write(data_bit[i]);
+                data_bit[i] = (byte)(temp % 2);
             }
 
-            // 7, 4, 5ビットごとに10進数に変換
-            Console.WriteLine("年" + BinaryToInt32(data_bit, 6, 7));
-            Console.WriteLine("月" + BinaryToInt32(data_bit, 10, 4));
-            Console.WriteLine("日" + BinaryToInt32(data_bit, 15, 5));
+            // 7, 4, 5ビットごとに10進数に変換しDateTimeとして返す
+            return new DateTime(BinaryToInt32(data_bit, 6, 7)+2000, BinaryToInt32(data_bit, 10, 4), BinaryToInt32(data_bit, 15, 5));
+        }
+
+        private static byte[] ByteToBinary(byte data)
+        {
+            byte[] bit = new byte[8];
+            for (int i = 7; 0 <= i; i--, data /= 2)
+            {
+                bit[i] = (byte)(data % 2);
+            }
+
+            return bit;
         }
 
         private static int BinaryToInt32(byte[] data, int StartIndex, int Length)
@@ -258,11 +289,12 @@ namespace NFC
             // システムコード: 0003 (Suicaなどの領域)
             f.Polling((int)SystemCode.Suica);
 
-            Console.WriteLine("IDm=" + BitConverter.ToString(f.IDm()));
-            Console.WriteLine("PMm=" + BitConverter.ToString(f.PMm()));
+            //Console.WriteLine("IDm=" + BitConverter.ToString(f.IDm()));
+            //Console.WriteLine("PMm=" + BitConverter.ToString(f.PMm()));
 
             // Suica 各サービスコード
             for (int i = 0; ; i++)
+            //for (int i = 0; i < 1; i++)
             {
                 // サービスコード　乗降履歴情報
                 byte[] data = f.ReadWithoutEncryption(0x090f, i);
