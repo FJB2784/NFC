@@ -1,9 +1,17 @@
 function getIDm()
 {
     const request = new XMLHttpRequest();
-    request.open("GET", "http://localhost:8000/", false);
 
-    request.send();
+    try
+    {
+        request.open("GET", "http://localhost:8000/", false);
+        request.send();
+    }
+    catch (e)
+    {
+        console.log("サーバに接続できません");
+        return null;
+    }
 
     if (request.status == 200)
     {
@@ -13,6 +21,7 @@ function getIDm()
     else
     {
         // 読み取り失敗
+        console.log("カード読み取り失敗");
         return null;
     }
 }
