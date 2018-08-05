@@ -26,6 +26,34 @@ function getIDm()
     }
 }
 
+function getIDmDummy(seed)
+{
+    const request = new XMLHttpRequest();
+
+    try
+    {
+        request.open("GET", "http://localhost:8000/getIDmDummy?seed=" + seed, false);
+        request.send();
+    }
+    catch (e)
+    {
+        console.log("サーバに接続できません");
+        return null;
+    }
+
+    if (request.status == 200)
+    {
+        // 疑似IDm生成成功
+        return request.responseText;
+    }
+    else
+    {
+        // 疑似IDm生成失敗
+        console.log("疑似IDm生成失敗");
+        return null;
+    }
+}
+
 // 非同期通信の残骸
 // function getIDmAsync()
 // {

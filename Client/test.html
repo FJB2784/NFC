@@ -17,10 +17,27 @@
           document.getElementById("idm").innerText = "読み取り失敗";
         }
       }
+
+      function printIDmDummy()
+      {
+        var seed = document.getElementById("seed").value;
+        var idm = getIDmDummy(seed);
+        if (idm != null)
+        {
+          document.getElementById("idm").innerText = idm;
+        }
+        else
+        {
+          document.getElementById("idm").innerText = "疑似IDm生成失敗";
+        }
+      }
     </script>
   </head>
   <body>
-    <input type="button" value="GET IDm" onclick="printIDm();">
+    <input type="button" value="GET IDm" onclick="printIDm();"><br>
+    <input type="button" value="GET IDm Dummy" onclick="printIDmDummy();">
+    <input id="seed" type="text" placeholder="seed">
+    <hr>
     <p id="idm"></p>
   </body>
 </html>
