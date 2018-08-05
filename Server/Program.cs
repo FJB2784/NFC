@@ -63,7 +63,7 @@ namespace Server
                     if (readSuccess)
                     {
                         // 読み取り成功
-                        string idm_str = BitConverter.ToString(idm).Replace("-", "");
+                        string idm_str = BitConverter.ToString(idm).Replace("-", "").ToLower();
                         idm = Encoding.UTF8.GetBytes(idm_str);
 
                         response.StatusCode = 200;
