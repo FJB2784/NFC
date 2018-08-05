@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <title>NFC</title>
+    <!-- MD5ハッシュ計算ツール www.yujakudo.comより借用-->
+    <script type="text/javascript" src="yjdmd5.js"></script>
+    <script>
+      function getIDmDummyWithoutServer(seed)
+      {
+        return yjd_md5(seed).substring(0, 16);
+      }
+    </script>
     <script type="text/javascript" src="nfc_client.js"></script>
     <script>
       function printIDm()
@@ -31,13 +39,57 @@
           document.getElementById("idm").innerText = "疑似IDm生成失敗";
         }
       }
+
+      function printIDmDummyWithoutServer()
+      {
+        var seed = document.getElementById("seed").value;
+        var idm = getIDmDummyWithoutServer(seed);
+        if (idm != null)
+        {
+          document.getElementById("idm").innerText = idm;
+        }
+        else
+        {
+          document.getElementById("idm").innerText = "疑似IDm生成失敗";
+        }
+      }
     </script>
   </head>
   <body>
-    <input type="button" value="GET IDm" onclick="printIDm();"><br>
-    <input type="button" value="GET IDm Dummy" onclick="printIDmDummy();">
-    <input id="seed" type="text" placeholder="seed">
+    <div>
+      <input type="button" value="GET IDm" onclick="printIDm();"><br>
+      <br>
+      <label for="seed">シード値 : </label><input id="seed" type="text" placeholder="seed"><br>
+      <input type="button" value="GET IDm Dummy" onclick="printIDmDummy();">
+      <input type="button" value="GET IDm Dummy Without Server" onclick="printIDmDummyWithoutServer();">
+    </div>
     <hr>
-    <p id="idm"></p>
+    <p id="idm">ここにIDmが表示されます。</p>
+    <hr>
+    <div>
+      <h2>解説</h2>
+      <h3>GET IDm</h3>
+      <p>
+        Serverと通信しNFCカードからデータを読み込みます。<br>
+        本番と同じ環境です。<br>
+      </p>
+      <h3>GET IDm Dummy</h3>
+      <p>
+        Serverと通信しシード値から擬似IDmを生成します。<br>
+        NFCカードリーダーが無くても試せるテスト環境です。<br>
+      </p>
+      <h3>GET IDm Dummy Without Server</h3>
+      <p>
+        ブラウザ上でシード値から擬似IDmを生成します。<br>
+        ブラウザ上で完結しているので一番手軽なテスト環境です。<br>
+      </p>
+      <h3>疑似IDm</h3>
+      <p>
+        IDmはNFCカードが持つだいたい一意なデータです。<br>
+        それを擬似的に生成したものです。<br>
+        アルゴリズムはシード値をUTF-8で符号化しMD5でハッシュ値を計算。<br>
+        得られたハッシュ値の先頭から8バイト(16進数16桁)を擬似IDmとしています。<br>
+      </p>
+    </div>
   </body>
 </html>
