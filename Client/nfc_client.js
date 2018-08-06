@@ -1,3 +1,7 @@
+// getIDm*()
+// getIDmDummy(seed)
+// getIDmDummyWithoutServer(seed)
+
 function getIDm()
 {
     const request = new XMLHttpRequest();
@@ -52,6 +56,12 @@ function getIDmDummy(seed)
         console.log("疑似IDm生成失敗");
         return null;
     }
+}
+
+// yjdmd5.jsに依存
+function getIDmDummyWithoutServer(seed)
+{
+    return yjd_md5(seed).substring(0, 16);
 }
 
 // 非同期通信の残骸
