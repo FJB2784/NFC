@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Firebase</title>
+    <!-- NFC関連 -->
+    <script type="text/javascript" src="yjdmd5.js"></script>
+    <script type="text/javascript" src="nfc_client.js"></script>
+    <!-- Firebase関連 -->
+    <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+    <script>
+      // ここからfirebaseの認証情報
+      var config = {
+        apiKey: "セキュリティ(ry",
+        authDomain: "セキュリティ(ry",
+        databaseURL: "セキュリティ(ry",
+        projectId: "セキュリティ(ry",
+        storageBucket: "セキュリティ(ry",
+        messagingSenderId: "セキュリティ(ry"
+      };
+      firebase.initializeApp(config);
+      // ここまでfirebaseの認証情報
+
+      // ここからデータ取得処理
+      // var user = "testID"; // ここにユーザのIDを入れる、本番はカードリーダから取得したIDが入る
+      // var database = firebase.database(); //firebaseのデータベースを使う事を変数で定めている
+      // var dataRef = database.ref('/' + user); // 取得するデータの項目名を定めている。プログラムには「'/'+user」は「/ユーザーID」に見えている。
+      // dataRef.once("value")
+      // .then(function (snapshot) {
+      //   document.getElementById("name_print").innerHTML = snapshot.child("name").val(); // 項目の「name」に入っている値を取得し、id「name_hyouzi」の要素に代入している
+      //   document.getElementById("money_print").innerHTML = snapshot.child("money").val(); // 項目の「money」に入っている値を取得し、id「name_hyouzi」の要素に代入している
+      // });
+      // ここまでデータ取得処理
+
+      // ここから挿入処理
+      // function db() {
+      //   var user = "testID"; // ここにユーザのIDを入れる
+      //   var nameInput2 = document.getElementById("name_input").value // HTML内のid「nameInput1」が付いた要素に入力された内容（.val）を取得し、変数「nameInput2」に代入している
+      //   var moneyInput2 = document.getElementById("money_input").value // HTML内のid「moneyInput1」が付いた要素に入力された内容（.val）を取得し、変数「「moneyInput2」に代入している
+      //   var commentsRef = firebase.database().ref(user); // 挿入する際の項目名を指定
+      //   commentsRef.set({ name: nameInput2, money: moneyInput2 }); // nameにnameInputに入力した値が、moneyにmoneyInputに入力した値が挿入される
+      //   console.log(moneyInput) // どのような値が挿入されたのかコンソールに表示している
+      //   console.log(nameInput) // どのような値が挿入されたのかコンソールに表示している
+      // };
+      // ここまで挿入処理
+    </script>
+    <script>
+      function addDatabaseUseIDm()
+      {
+        var user = getIDm();
+        var nameInput2 = document.getElementById("name_input").value // HTML内のid「nameInput1」が付いた要素に入力された内容（.val）を取得し、変数「nameInput2」に代入している
+        var moneyInput2 = document.getElementById("money_input").value // HTML内のid「moneyInput1」が付いた要素に入力された内容（.val）を取得し、変数「「moneyInput2」に代入している
+        var commentsRef = firebase.database().ref(user); // 挿入する際の項目名を指定
+        commentsRef.set({ name: nameInput2, money: moneyInput2 }); // nameにnameInputに入力した値が、moneyにmoneyInputに入力した値が挿入される
+        console.log(moneyInput2) // どのような値が挿入されたのかコンソールに表示している
+        console.log(nameInput2) // どのような値が挿入されたのかコンソールに表示している
+      }
+
+      function addDatabaseUseIDmDummy()
+      {
+        var seed = document.getElementById("seed").value;
+        var user = getIDmDummyWithoutServer(seed);
+        var nameInput2 = document.getElementById("name_input").value // HTML内のid「nameInput1」が付いた要素に入力された内容（.val）を取得し、変数「nameInput2」に代入している
+        var moneyInput2 = document.getElementById("money_input").value // HTML内のid「moneyInput1」が付いた要素に入力された内容（.val）を取得し、変数「「moneyInput2」に代入している
+        var commentsRef = firebase.database().ref(user); // 挿入する際の項目名を指定
+        commentsRef.set({ name: nameInput2, money: moneyInput2 }); // nameにnameInputに入力した値が、moneyにmoneyInputに入力した値が挿入される
+        console.log(moneyInput2) // どのような値が挿入されたのかコンソールに表示している
+        console.log(nameInput2) // どのような値が挿入されたのかコンソールに表示している
+      }
+
+      function getDatabaseUseIDm()
+      {
+        var user = getIDm();
+        var database = firebase.database(); //firebaseのデータベースを使う事を変数で定めている
+        var dataRef = database.ref('/' + user); // 取得するデータの項目名を定めている。プログラムには「'/'+user」は「/ユーザーID」に見えている。
+        dataRef.once("value")
+        .then(function (snapshot) {
+        document.getElementById("name_print").innerHTML = snapshot.child("name").val(); // 項目の「name」に入っている値を取得し、id「name_hyouzi」の要素に代入している
+        document.getElementById("money_print").innerHTML = snapshot.child("money").val(); // 項目の「money」に入っている値を取得し、id「name_hyouzi」の要素に代入している
+        });
+      }
+
+      function getDatabaseUseIDmDummy()
+      {
+        var seed = document.getElementById("seed").value;
+        var user = getIDmDummyWithoutServer(seed);
+        var database = firebase.database(); //firebaseのデータベースを使う事を変数で定めている
+        var dataRef = database.ref('/' + user); // 取得するデータの項目名を定めている。プログラムには「'/'+user」は「/ユーザーID」に見えている。
+        dataRef.once("value")
+        .then(function (snapshot) {
+        document.getElementById("name_print").innerHTML = snapshot.child("name").val(); // 項目の「name」に入っている値を取得し、id「name_hyouzi」の要素に代入している
+        document.getElementById("money_print").innerHTML = snapshot.child("money").val(); // 項目の「money」に入っている値を取得し、id「name_hyouzi」の要素に代入している
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div>
+      <p>データベースに登録するデータ</p>
+      <input id="name_input" type="text" placeholder="名前"><br>
+      <input id="money_input" type="text" placeholder="数値">
+    </div>
+    <br>
+    <div>
+      <p>NFCカードからIDm取得しデータベースを操作</p>
+      <input type="button" value="ADD Database (Use IDm)" onclick="addDatabaseUseIDm();">
+      <input type="button" value="GET Database (Use IDm)" onclick="getDatabaseUseIDm();">
+    </div>
+    <br>
+    <div>
+      <p>疑似IDmを使用してデータベースを操作</p>
+      <label for="seed">シード値 : </label>
+      <input id="seed" type="text" placeholder="seed"><br>
+      <input type="button" value="ADD Database (Use 疑似IDm)" onclick="addDatabaseUseIDmDummy();">
+      <input type="button" value="GET Database (Use 疑似IDm)" onclick="getDatabaseUseIDmDummy();">
+    </div>
+    <hr>
+    <div>
+      <p id="name_print"></p>
+      <p id="money_print"></p>
+    </div>
+  </body>
+</html>
