@@ -35,6 +35,7 @@ namespace Server
 
                     if (System.Text.RegularExpressions.Regex.IsMatch(context.Request.Url.ToString(),"http://localhost:8000/getIDmDummy\\?seed=.*"))
                     {
+                        // 疑似IDm生成
                         idm = IDmDummy(context.Request.QueryString.Get("seed"));
                         readSuccess = true;
 
