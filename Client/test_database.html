@@ -8,17 +8,20 @@
     <script type="text/javascript" src="nfc_client.js"></script>
     <!-- Firebase関連 -->
     <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+    <!-- Firebaseの認証情報を別ファイルに移動 -->
+    <!-- セキュリティ上の理由で共有していません -->
+    <script type="text/javascript" src="firebase_auth.js"></script>
     <script>
       // ここからfirebaseの認証情報
-      var config = {
-        apiKey: "セキュリティ(ry",
-        authDomain: "セキュリティ(ry",
-        databaseURL: "セキュリティ(ry",
-        projectId: "セキュリティ(ry",
-        storageBucket: "セキュリティ(ry",
-        messagingSenderId: "セキュリティ(ry"
-      };
-      firebase.initializeApp(config);
+      // var config = {
+      //   apiKey: "セキュリティ(ry",
+      //   authDomain: "セキュリティ(ry",
+      //   databaseURL: "セキュリティ(ry",
+      //   projectId: "セキュリティ(ry",
+      //   storageBucket: "セキュリティ(ry",
+      //   messagingSenderId: "セキュリティ(ry"
+      // };
+      // firebase.initializeApp(config);
       // ここまでfirebaseの認証情報
 
       // ここからデータ取得処理
@@ -45,6 +48,7 @@
       // ここまで挿入処理
     </script>
     <script>
+      // NFCカードから読み取ったIDmを使ってデータを追加
       function addDatabaseUseIDm()
       {
         var user = getIDm();
@@ -55,7 +59,7 @@
         console.log(moneyInput2) // どのような値が挿入されたのかコンソールに表示している
         console.log(nameInput2) // どのような値が挿入されたのかコンソールに表示している
       }
-
+      // 疑似IDmを使ってデータを追加
       function addDatabaseUseIDmDummy()
       {
         var seed = document.getElementById("seed").value;
@@ -67,7 +71,7 @@
         console.log(moneyInput2) // どのような値が挿入されたのかコンソールに表示している
         console.log(nameInput2) // どのような値が挿入されたのかコンソールに表示している
       }
-
+      // NFCカードから読み取ったIDmを使ってデータを取得
       function getDatabaseUseIDm()
       {
         var user = getIDm();
@@ -79,7 +83,7 @@
         document.getElementById("money_print").innerHTML = snapshot.child("money").val(); // 項目の「money」に入っている値を取得し、id「name_hyouzi」の要素に代入している
         });
       }
-
+      // 疑似IDmを使ってデータを取得
       function getDatabaseUseIDmDummy()
       {
         var seed = document.getElementById("seed").value;
