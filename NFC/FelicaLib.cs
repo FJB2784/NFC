@@ -47,6 +47,8 @@ namespace FelicaLib
 
         Edy = 0xfe00,           // Edy (=共通領域)
         Suica = 0x0003,         // Suica (=サイバネ領域)
+
+        FelicaLiteS = 0x88b4    // Felica Lite/Felica Lite-S
     }
 
     public class Felica : IDisposable
