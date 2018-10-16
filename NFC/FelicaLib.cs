@@ -67,6 +67,8 @@ namespace FelicaLib
         private extern static void felica_getpmm(IntPtr f, byte[] data);
         [DllImport("felicalib.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int felica_read_without_encryption02(IntPtr f, int servicecode, int mode, byte addr, byte[] data);
+        [DllImport("felicalib.dll", CallingConvention = CallingConvention.Cdecl)]
+        private extern static int felica_write_without_encryption(IntPtr f, int servicecode, byte addr, byte[] data);
 
         private IntPtr pasorip = IntPtr.Zero;
         private IntPtr felicap = IntPtr.Zero;
@@ -147,6 +149,18 @@ namespace FelicaLib
                 return null;
             }
             return data;
+        }
+
+        public int WriteWithoutEncryption(int servicecode, int addr, byte[] data)
+        {
+            if (felicap == IntPtr.Zero)
+            {
+                throw new Exception("no polling executed.");
+            }
+
+            int ret = felica_write_without_encryption(felicap, servicecode, (byte)addr, data);
+
+            return ret;
         }
     }
 }
