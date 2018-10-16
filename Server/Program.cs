@@ -47,7 +47,7 @@ namespace Server
                         {
                             // NFC読み込み
                             Felica felica = new Felica();
-                            felica.Polling((int)SystemCode.Any);
+                            felica.Polling((int)SystemCode.FelicaLiteS);
                             idm = felica.IDm();
                             felica.Dispose();
 

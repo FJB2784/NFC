@@ -47,6 +47,8 @@ namespace FelicaLib
 
         Edy = 0xfe00,           // Edy (=共通領域)
         Suica = 0x0003,         // Suica (=サイバネ領域)
+
+        FelicaLiteS = 0x88b4    // Felica Lite/Felica Lite-S
     }
 
     public class Felica : IDisposable
@@ -67,6 +69,8 @@ namespace FelicaLib
         private extern static void felica_getpmm(IntPtr f, byte[] data);
         [DllImport("felicalib.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int felica_read_without_encryption02(IntPtr f, int servicecode, int mode, byte addr, byte[] data);
+        [DllImport("felicalib.dll", CallingConvention = CallingConvention.Cdecl)]
+        private extern static int felica_write_without_encryption(IntPtr f, int servicecode, byte addr, byte[] data);
 
         private IntPtr pasorip = IntPtr.Zero;
         private IntPtr felicap = IntPtr.Zero;
@@ -119,7 +123,7 @@ namespace FelicaLib
             byte[] buf = new byte[8];
             felica_getidm(felicap, buf);
             return buf;
-        }    
+        }
 
         public byte[] PMm()
         {
@@ -131,7 +135,7 @@ namespace FelicaLib
             byte[] buf = new byte[8];
             felica_getpmm(felicap, buf);
             return buf;
-        }    
+        }
 
         public byte[] ReadWithoutEncryption(int servicecode, int addr)
         {
@@ -147,6 +151,18 @@ namespace FelicaLib
                 return null;
             }
             return data;
+        }
+
+        public int WriteWithoutEncryption(int servicecode, int addr, byte[] data)
+        {
+            if (felicap == IntPtr.Zero)
+            {
+                throw new Exception("no polling executed.");
+            }
+
+            int ret = felica_write_without_encryption(felicap, servicecode, (byte)addr, data);
+
+            return ret;
         }
     }
 }
