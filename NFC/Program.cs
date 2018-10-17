@@ -13,62 +13,107 @@ namespace NFC
         private static void Main(string[] args)
         {
             Felica felica = new Felica();
-            felica.Polling((int)SystemCode.FelicaLiteS);
-            //Console.WriteLine("IDm : " + BitConverter.ToString(felica.IDm()));
-            //Console.WriteLine("PMm : " + BitConverter.ToString(felica.PMm()));
+            try {
+                felica.Polling((int)SystemCode.FelicaLiteS);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
 
-            //string text = Console.ReadLine();
-            //byte[] text_bytes = GetBytes(text);
+            Console.WriteLine("IDm : " + BitConverter.ToString(felica.IDm()));
+            Console.WriteLine();
 
-            //Console.WriteLine("bytes : " + BitConverter.ToString(text_bytes));
+            if (args.Length == 1 && args[0].Equals("DUMP", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Dump(ref felica);
+            }
+            else if (args.Length == 1 && args[0].Equals("READ", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Read(ref felica);
+            }
+            else if (args.Length == 2 && args[0].Equals("WRITE", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Write(ref felica, args[1]);
+            }
+            else
+            {
+                PrintHelp();
+            }
 
-            //Write string
-            //for (int i = 0; i < FELICA_LITE_S_DATA_LENGTH / 0x10; i++)
-            //{
-            //    byte[] data = new byte[0x10];
-            //    for (int j = 0; j < 0x10; j++)
-            //    {
-            //        if ((i << 4) + j < text_bytes.Length)
-            //        {
-            //            data[j] = text_bytes[(i << 4) + j];
-            //        }
-            //        else
-            //        {
-            //            data[j] = 0x00;
-            //        }
-            //    }
+            felica.Dispose();
+        }
 
-            //    felica.WriteWithoutEncryption(0x0009, i, data);
-            //}
+        private static void Write(ref Felica felica, string text)
+        {
+            byte[] text_bytes = GetBytes(text);
 
-            // Read bit
-            //for (int i = 0; i < 0x0e; i++)
-            //{
-            //    Console.WriteLine("READ {0:X2} : " + BitConverter.ToString(felica.ReadWithoutEncryption(0x0009, i)), i);
-            //}
+            for (int i = 0; i < FELICA_LITE_S_DATA_LENGTH / 0x10; i++)
+            {
+                byte[] data = new byte[0x10];
+                for (int j = 0; j < 0x10; j++)
+                {
+                    if ((i << 4) + j < text_bytes.Length)
+                    {
+                        data[j] = text_bytes[(i << 4) + j];
+                    }
+                    else
+                    {
+                        data[j] = 0x00;
+                    }
+                }
 
-            // Read string
-            //for (int i = 0; i < 0x0e; i++)
-            //{
-            //    Console.WriteLine("READ {0:X2} : " + ToString(felica.ReadWithoutEncryption(0x0009, i)), i);
-            //}
+                felica.WriteWithoutEncryption(0x0009, i, data);
+            }
 
-            // Read string
+        }
+
+        private static void Read(ref Felica felica)
+        {
             string str = "";
             for (int i = 0; i < 0x0e; i++)
             {
                 str += ToString(felica.ReadWithoutEncryption(0x0009, i));
             }
             Console.WriteLine(str);
+        }
 
-            felica.Dispose();
+        private static void Dump(ref Felica felica)
+        {
+            Console.Write("addr  ");
+            for (int i = 0; i < 0x10; i++)
+            {
+                Console.Write("+{0:X1} ", i);
+            }
+            Console.WriteLine();
+            for (int i = 0; i < 0x0e; i++)
+            {
+                Console.WriteLine("00{0:X2}  " + BitConverter.ToString(felica.ReadWithoutEncryption(0x0009, i)).Replace('-', ' '), i);
+            }
+        }
+
+        private static void PrintHelp()
+        {
+            Console.WriteLine("Felica Lite-Sに文字列を書き込み、読み込むプログラムです。");
+            Console.WriteLine();
+            Console.WriteLine("NFC.exe DUMP");
+            Console.WriteLine("Felica Lite-Sの全ブロックをダンプします。");
+            Console.WriteLine();
+            Console.WriteLine("NFC.exe READ");
+            Console.WriteLine("Felica Lite-Sに保存されたテキストを読み込みます。");
+            Console.WriteLine();
+            Console.WriteLine("NFC.exe WRITE \"TEXT\"");
+            Console.WriteLine("Felica Lite-Sにテキストを書き込みます。");
+            Console.WriteLine("JIS X 0201 に準拠した文字列を入力してください。");
+            Console.WriteLine("文字列内にスペースが含まれる場合ダブルクォーテーションで囲ってください。");
         }
 
         private const int FELICA_LITE_S_DATA_LENGTH = 0xe0;
         private const char NULL = '\0';
         private static char[,] CHARCODE_TABLE =
         {
-            { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }, // 0x00
+            { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '\n', NULL, NULL, NULL, NULL, NULL }, // 0x00
             { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }, // 0x10
             { ' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/' }, // 0x20
             { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?' }, // 0x30
@@ -103,19 +148,19 @@ namespace NFC
                             count++;
                             break;
                         }
-                        else
-                        {
-                            byte[] daku = GetDakutenHandakuten(c);
-                            if (daku != null && count < FELICA_LITE_S_DATA_LENGTH - 1)
-                            {
-                                flg = false;
-                                data[count] = daku[0];
-                                count++;
-                                data[count] = daku[1];
-                                count++;
-                                break;
-                            }
-                        }
+                        //else
+                        //{
+                        //    byte[] daku = GetDakutenHandakuten(c);
+                        //    if (daku != null && count < FELICA_LITE_S_DATA_LENGTH - 1)
+                        //    {
+                        //        flg = false;
+                        //        data[count] = daku[0];
+                        //        count++;
+                        //        data[count] = daku[1];
+                        //        count++;
+                        //        break;
+                        //    }
+                        //}
 
                         if (count == FELICA_LITE_S_DATA_LENGTH)
                         {
@@ -138,131 +183,136 @@ namespace NFC
             return data;
         }
 
-        private static byte[] GetDakutenHandakuten(char c)
-        {
-            byte[] data = new byte[2];
+        //private static byte[] GetDakutenHandakuten(char c)
+        //{
+        //    byte[] data = new byte[2];
 
-            switch (c)
-            {
-                case 'ガ':
-                    data[0] = 0xb6;
-                    break;
-                case 'ギ':
-                    data[0] = 0xb7;
-                    break;
-                case 'グ':
-                    data[0] = 0xb8;
-                    break;
-                case 'ゲ':
-                    data[0] = 0xb9;
-                    break;
-                case 'ゴ':
-                    data[0] = 0xba;
-                    break;
-                case 'ザ':
-                    data[0] = 0xbb;
-                    break;
-                case 'ジ':
-                    data[0] = 0xbc;
-                    break;
-                case 'ズ':
-                    data[0] = 0xbd;
-                    break;
-                case 'ゼ':
-                    data[0] = 0xbe;
-                    break;
-                case 'ゾ':
-                    data[0] = 0xbf;
-                    break;
-                case 'ダ':
-                    data[0] = 0xc0;
-                    break;
-                case 'ヂ':
-                    data[0] = 0xc1;
-                    break;
-                case 'ヅ':
-                    data[0] = 0xc2;
-                    break;
-                case 'デ':
-                    data[0] = 0xc3;
-                    break;
-                case 'ド':
-                    data[0] = 0xc4;
-                    break;
-                case 'バ':
-                case 'パ':
-                    data[0] = 0xca;
-                    break;
-                case 'ビ':
-                case 'ピ':
-                    data[0] = 0xcb;
-                    break;
-                case 'ブ':
-                case 'プ':
-                    data[0] = 0xcc;
-                    break;
-                case 'ベ':
-                case 'ペ':
-                    data[0] = 0xcd;
-                    break;
-                case 'ボ':
-                case 'ポ':
-                    data[0] = 0xce;
-                    break;
-                default:
-                    data[0] = 0x00;
-                    break;
-            }
+        //    switch (c)
+        //    {
+        //        case 'ガ':
+        //            data[0] = 0xb6;
+        //            break;
+        //        case 'ギ':
+        //            data[0] = 0xb7;
+        //            break;
+        //        case 'グ':
+        //            data[0] = 0xb8;
+        //            break;
+        //        case 'ゲ':
+        //            data[0] = 0xb9;
+        //            break;
+        //        case 'ゴ':
+        //            data[0] = 0xba;
+        //            break;
+        //        case 'ザ':
+        //            data[0] = 0xbb;
+        //            break;
+        //        case 'ジ':
+        //            data[0] = 0xbc;
+        //            break;
+        //        case 'ズ':
+        //            data[0] = 0xbd;
+        //            break;
+        //        case 'ゼ':
+        //            data[0] = 0xbe;
+        //            break;
+        //        case 'ゾ':
+        //            data[0] = 0xbf;
+        //            break;
+        //        case 'ダ':
+        //            data[0] = 0xc0;
+        //            break;
+        //        case 'ヂ':
+        //            data[0] = 0xc1;
+        //            break;
+        //        case 'ヅ':
+        //            data[0] = 0xc2;
+        //            break;
+        //        case 'デ':
+        //            data[0] = 0xc3;
+        //            break;
+        //        case 'ド':
+        //            data[0] = 0xc4;
+        //            break;
+        //        case 'バ':
+        //        case 'パ':
+        //            data[0] = 0xca;
+        //            break;
+        //        case 'ビ':
+        //        case 'ピ':
+        //            data[0] = 0xcb;
+        //            break;
+        //        case 'ブ':
+        //        case 'プ':
+        //            data[0] = 0xcc;
+        //            break;
+        //        case 'ベ':
+        //        case 'ペ':
+        //            data[0] = 0xcd;
+        //            break;
+        //        case 'ボ':
+        //        case 'ポ':
+        //            data[0] = 0xce;
+        //            break;
+        //        default:
+        //            data[0] = 0x00;
+        //            break;
+        //    }
 
-            switch (c)
-            {
-                case 'ガ':
-                case 'ギ':
-                case 'グ':
-                case 'ゲ':
-                case 'ゴ':
-                case 'ザ':
-                case 'ジ':
-                case 'ズ':
-                case 'ゼ':
-                case 'ゾ':
-                case 'ダ':
-                case 'ヂ':
-                case 'ヅ':
-                case 'デ':
-                case 'ド':
-                case 'バ':
-                case 'ビ':
-                case 'ブ':
-                case 'ベ':
-                case 'ボ':
-                    data[1] = 0xde;
-                    break;
-                case 'パ':
-                case 'ピ':
-                case 'プ':
-                case 'ペ':
-                case 'ポ':
-                    data[1] = 0xdf;
-                    break;
-                default:
-                    data[1] = 0x00;
-                    break;
-            }
+        //    switch (c)
+        //    {
+        //        case 'ガ':
+        //        case 'ギ':
+        //        case 'グ':
+        //        case 'ゲ':
+        //        case 'ゴ':
+        //        case 'ザ':
+        //        case 'ジ':
+        //        case 'ズ':
+        //        case 'ゼ':
+        //        case 'ゾ':
+        //        case 'ダ':
+        //        case 'ヂ':
+        //        case 'ヅ':
+        //        case 'デ':
+        //        case 'ド':
+        //        case 'バ':
+        //        case 'ビ':
+        //        case 'ブ':
+        //        case 'ベ':
+        //        case 'ボ':
+        //            data[1] = 0xde;
+        //            break;
+        //        case 'パ':
+        //        case 'ピ':
+        //        case 'プ':
+        //        case 'ペ':
+        //        case 'ポ':
+        //            data[1] = 0xdf;
+        //            break;
+        //        default:
+        //            data[1] = 0x00;
+        //            break;
+        //    }
 
-            if (data[0] == 0x00 && data[1] == 0x00)
-            {
-                return null;
-            }
+        //    if (data[0] == 0x00 && data[1] == 0x00)
+        //    {
+        //        return null;
+        //    }
 
-            return data;
-        }
+        //    return data;
+        //}
 
         private static string ToString(byte[] data)
         {
             string str = "";
             foreach (byte b in data)
             {
+                if (b == 0x00)
+                {
+                    break;
+                }
+
                 byte x = (byte)(b >> 4);
                 byte y = (byte)(b - (x << 4));
 
